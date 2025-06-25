@@ -3,6 +3,9 @@ package com.metical_converter.infrasctruture.config;
 import com.metical_converter.infrasctruture.exceptions.RateLimitExceededException;
 import com.metical_converter.infrasctruture.middleware.ClientContext;
 
+import com.metical_converter.infrasctruture.middleware.LocaleMiddleware;
+import com.metical_converter.services.MessageService;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -13,8 +16,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Aspect
 @Component
+@RequiredArgsConstructor
 public class RateLimittingAspect {
 
+    private final MessageService messageService;
+    private final LocaleMiddleware localeMiddleware;
     private static final ConcurrentHashMap<String, RateLimit> rateLimits = new ConcurrentHashMap<>();
     private static final int REQUEST_LIMIT = 30;
     private static final long TIME_WINDOW = 60000; // 60 segundos
@@ -25,7 +31,7 @@ public class RateLimittingAspect {
         String clientId = ClientContext.getCurrentTenant();
         RateLimit rateLimit = rateLimits.computeIfAbsent(clientId, k -> new RateLimit());
         if (!rateLimit.tryAcquire()) {
-            throw new RateLimitExceededException("Rate limit exceded");
+            throw new RateLimitExceededException(messageService.getLocalizedMessage("ratelimit.exceeded", localeMiddleware.getActualLocale()));
         }
     }
 

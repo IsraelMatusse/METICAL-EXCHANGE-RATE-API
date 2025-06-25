@@ -16,10 +16,10 @@ public class LocaleConfiguration implements WebMvcConfigurer {
     @Bean
     public LocaleResolver localeResolver() {
         AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
-        localeResolver.setDefaultLocale(new Locale("pt")); // Português como padrão
+        localeResolver.setDefaultLocale(new Locale("pt")); // Portuguese as pattern
         localeResolver.setSupportedLocales(Arrays.asList(
-                new Locale("pt"), // Português
-                new Locale("en")  // Inglês
+                new Locale("pt"), // Portuguese
+                new Locale("en")  // Enflish
         ));
         return localeResolver;
     }

@@ -13,19 +13,12 @@ import java.util.Set;
 
 public class ClientInterceptor implements HandlerInterceptor {
 
-    private final Set<String> publicPaths = new HashSet<>(List.of(
-            "/swagger-ui/**",
-            "/swagger-resources/**"
-    ));
+
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if(publicPaths.stream().anyMatch(p -> request.getRequestURI().startsWith(p))){
-            return true;
-        } else {
             String clientId = getClientIpAddress(request);
             ClientContext.setCurrentTenant(clientId);
             return true;
-        }
     }
 
     @Override

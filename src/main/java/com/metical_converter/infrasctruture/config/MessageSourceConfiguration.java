@@ -13,7 +13,7 @@ public class MessageSourceConfiguration {
         source.setBasenames("classpath:i18n/messages");
         source.setDefaultEncoding("UTF-8");
         source.setUseCodeAsDefaultMessage(true);
-        source.setFallbackToSystemLocale(false); // Importante: usar português como padrão
+        source.setFallbackToSystemLocale(false);
         return source;
     }
 }
