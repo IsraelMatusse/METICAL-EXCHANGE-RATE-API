@@ -1,5 +1,6 @@
 package com.metical_converter.infrasctruture.exceptions;
 import com.metical_converter.interfaces.internal.ResponseApi;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.core.Ordered;
@@ -19,5 +20,10 @@ public class Handler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseApi handleModelNotFound(NotFoundException e){
         return new ResponseApi( e.getMessage(), null);
+    }
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseApi handleTooMany(HttpServletRequest request, RateLimitExceededException ex) {
+        return new ResponseApi(ex.getMessage(),  null);
     }
 }

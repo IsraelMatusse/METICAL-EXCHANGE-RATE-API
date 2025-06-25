@@ -1,5 +1,6 @@
 package com.metical_converter.interfaces.controllers;
 
+import com.metical_converter.infrasctruture.config.RateLimited;
 import com.metical_converter.infrasctruture.exceptions.NotFoundException;
 import com.metical_converter.interfaces.internal.ApiResponse;
 import com.metical_converter.interfaces.responses.CurrencyResponse;
@@ -34,6 +35,7 @@ public class ExchangeRatesController {
     public ExchangeRateResponse getExchangeRates() throws SSLException {
         return exchangeRateService.getExchangeRates();
     }
+    @RateLimited
     @GetMapping("/currencys")
     @Operation(summary = "Listar moedas Disponíveis")
     public ResponseEntity<ApiResponse<List<CurrencyResponse>>> getCurrencys() throws SSLException {
