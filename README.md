@@ -1,4 +1,4 @@
-# Metical Converter
+# METICAL-EXCHANGE-RATE-API
 
 A Spring Boot application for currency exchange rate conversion, specifically designed for Mozambican Metical (MZN) currency operations. The application integrates with Bank of Mozambique (BM) web services to provide real-time exchange rates.
 
