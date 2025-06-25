@@ -16,7 +16,6 @@ public class BmWebClient {
 
     private final InsecureWebClient insecureWebClient;
     private final ExchangeRateConfig config;
-    private final Logger logger = LoggerFactory.getLogger(BmWebClient.class);
 
     public BmWebClient(InsecureWebClient insecureWebClient, ExchangeRateConfig config) {
         this.insecureWebClient = insecureWebClient;
