@@ -1,6 +1,7 @@
 package com.metical_converter.services;
 
 import com.metical_converter.infrasctruture.exceptions.NotFoundException;
+import com.metical_converter.infrasctruture.middleware.LocaleMiddleware;
 import com.metical_converter.integration.BmWebClient;
 import com.metical_converter.interfaces.responses.CurrencyResponse;
 import com.metical_converter.interfaces.responses.ExchangeRateByAmount;
@@ -20,12 +21,16 @@ import java.util.List;
 public class ExchangeRateService {
 
     private final BmWebClient bmWebClient;
+    private final MessageService messageService;
+    private final LocaleMiddleware localeMiddleware;
 
     @Lazy
     @Autowired
     private ExchangeRateService self;
-    public ExchangeRateService(BmWebClient bmWebClient) {
+    public ExchangeRateService(BmWebClient bmWebClient, MessageService messageService, LocaleMiddleware localeMiddleware) {
         this.bmWebClient = bmWebClient;
+        this.messageService = messageService;
+        this.localeMiddleware = localeMiddleware;
     }
 
 
@@ -40,7 +45,7 @@ public class ExchangeRateService {
         return exchangeRateResponse.rates().stream()
                 .filter(rateResponse -> rateResponse.currency().equals(currency))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("Moeda não encontrada: " + currency));
+                .orElseThrow(() -> new NotFoundException(messageService.getLocalizedMessage("currency.not.found", localeMiddleware.getActualLocale())));
     }
 
     @Cacheable(value = "currencys", key = "'currencys'")
@@ -57,7 +62,7 @@ public class ExchangeRateService {
         RateResponse rateResponse = exchangeRateResponse.rates().stream()
                 .filter(rate -> rate.currency().equals(currency))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("Moeda não encontrada: " + currency));
+                .orElseThrow(() -> new NotFoundException(messageService.getLocalizedMessage("currency.not.found", localeMiddleware.getActualLocale())));
 
         BigDecimal buyRate = new BigDecimal(rateResponse.buy());
         BigDecimal sellRate = new BigDecimal(rateResponse.sell());

@@ -2,12 +2,14 @@ package com.metical_converter.interfaces.controllers;
 
 import com.metical_converter.infrasctruture.config.RateLimited;
 import com.metical_converter.infrasctruture.exceptions.NotFoundException;
+import com.metical_converter.infrasctruture.middleware.LocaleMiddleware;
 import com.metical_converter.interfaces.internal.ApiResponse;
 import com.metical_converter.interfaces.responses.CurrencyResponse;
 import com.metical_converter.interfaces.responses.ExchangeRateByAmount;
 import com.metical_converter.interfaces.responses.ExchangeRateResponse;
 import com.metical_converter.interfaces.responses.RateResponse;
 import com.metical_converter.services.ExchangeRateService;
+import com.metical_converter.services.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,23 +31,26 @@ import java.util.List;
 public class ExchangeRatesController {
 
     private final ExchangeRateService exchangeRateService;
+    private final MessageService messageService;
+    private final LocaleMiddleware localeMiddleware;
 
     @GetMapping
     @Operation(summary = "Listar Taxas de Câmbio")
-    public ExchangeRateResponse getExchangeRates() throws SSLException {
-        return exchangeRateService.getExchangeRates();
+    public ResponseEntity<ApiResponse<ExchangeRateResponse>> getExchangeRates() throws SSLException {
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchange.rates", localeMiddleware.getActualLocale()), exchangeRateService.getExchangeRates()));
     }
     @RateLimited
     @GetMapping("/currencys")
     @Operation(summary = "Listar moedas Disponíveis")
     public ResponseEntity<ApiResponse<List<CurrencyResponse>>> getCurrencys() throws SSLException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Moedas Buscadas", exchangeRateService.getCurrencys()));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("currencys.found", localeMiddleware.getActualLocale()), exchangeRateService.getCurrencys()));
     }
 
     @GetMapping("/currency/{currency}")
     @Operation(summary = "Buscar Taxa de Câmbio por moeda")
     public ResponseEntity<ApiResponse<RateResponse>> getExchangeRatesByCurrency(@PathVariable(value = "currency" ) String currency) throws SSLException, NotFoundException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Taxa de Cambuo por moeda", exchangeRateService.getExchangeRatesByCurrency(currency)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchange.rate.by.currency", localeMiddleware.getActualLocale()), exchangeRateService.getExchangeRatesByCurrency(currency)));
     }
 
     @GetMapping("/currency/{currency}/amount/{amount}")
@@ -55,7 +60,7 @@ public class ExchangeRatesController {
             @PathVariable("currency") String currency
     ) throws SSLException, NotFoundException {
         BigDecimal amount = convertFormattedAmount(amountStr);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Taxa de Cambuo por moeda e valor", exchangeRateService.getExchangeRateByAmountAndCurrency(amount, currency)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.getExchangeRateByAmountAndCurrency(amount, currency)));
     }
 
     public  BigDecimal convertFormattedAmount(String amountStr) {
