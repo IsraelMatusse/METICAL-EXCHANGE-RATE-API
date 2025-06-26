@@ -19,7 +19,7 @@ public class LocaleConfiguration implements WebMvcConfigurer {
         localeResolver.setDefaultLocale(new Locale("pt")); // Portuguese as pattern
         localeResolver.setSupportedLocales(Arrays.asList(
                 new Locale("pt"), // Portuguese
-                new Locale("en")  // Enflish
+                new Locale("en")  // English
         ));
         return localeResolver;
     }
