@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,6 +14,8 @@ import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
+    @Value("${base.url}")
+    private String baseUrl;
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
@@ -24,7 +27,7 @@ public class SwaggerConfig {
                                 .name("Suporte")
                                 .email("devmathusses@gmail.com")))
                 .servers(List.of(
-                        new Server().url("http://localhost:8084").description("Ambiente de Desenvolvimento")
+                        new Server().url(baseUrl).description("Ambiente de Desenvolvimento")
                 ));
     }
     @Bean
