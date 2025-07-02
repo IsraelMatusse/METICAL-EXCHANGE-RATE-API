@@ -23,16 +23,21 @@ public class MessageService {
         return getLocalizedMessage(messageId, locale);
     }
 
-    public String getLocalizedMessage(String messageId, Locale locale) {
+    public String getLocalizedMessage(String messageId, Locale locale, Object... args) {
         try {
-            return messageSource.getMessage(messageId, null, locale);
+            return messageSource.getMessage(messageId, args, locale);
         } catch (NoSuchMessageException e) {
-            // Se não encontrar, tenta em português (padrão)
             try {
-                return messageSource.getMessage(messageId, null, new Locale("pt"));
+                return messageSource.getMessage(messageId, args, new Locale("pt"));
             } catch (NoSuchMessageException e2) {
-                return messageId; // Retorna a própria chave como fallback
+                return messageId;
             }
         }
     }
+
+    // Mantenha também o método sem parâmetros para compatibilidade
+    public String getLocalizedMessage(String messageId, Locale locale) {
+        return getLocalizedMessage(messageId, locale, (Object[]) null);
+    }
+
 }

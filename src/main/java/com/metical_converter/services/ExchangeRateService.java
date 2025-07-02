@@ -1,5 +1,6 @@
 package com.metical_converter.services;
 
+import com.metical_converter.infrasctruture.exceptions.IllegalArgumentException;
 import com.metical_converter.infrasctruture.exceptions.NotFoundException;
 import com.metical_converter.infrasctruture.middleware.LocaleMiddleware;
 import com.metical_converter.infrasctruture.utils.CurrencyCalculator;
@@ -24,14 +25,16 @@ public class ExchangeRateService {
     private final BmWebClient bmWebClient;
     private final MessageService messageService;
     private final LocaleMiddleware localeMiddleware;
+    private final DescriptionFormatter descriptionFormatter;
 
     @Lazy
     @Autowired
     private ExchangeRateService self;
-    public ExchangeRateService(BmWebClient bmWebClient, MessageService messageService, LocaleMiddleware localeMiddleware) {
+    public ExchangeRateService(BmWebClient bmWebClient, MessageService messageService, LocaleMiddleware localeMiddleware, DescriptionFormatter descriptionFormatter) {
         this.bmWebClient = bmWebClient;
         this.messageService = messageService;
         this.localeMiddleware = localeMiddleware;
+        this.descriptionFormatter = descriptionFormatter;
     }
 
     @Cacheable(value = "exchangeRates", key = "'exchange-rates'")
@@ -55,7 +58,7 @@ public class ExchangeRateService {
 
     @Cacheable(value = "sellForeignCurrency", keyGenerator = "customKeyGeneration")
     public CurrencyConversionResponse sellForeignCurrency(BigDecimal foreignAmount, String currency)
-            throws SSLException, NotFoundException {
+            throws SSLException, NotFoundException, IllegalArgumentException {
 
         validateConversionParams(foreignAmount, currency);
 
@@ -74,7 +77,9 @@ public class ExchangeRateService {
                 ConversionType.SELL_FOREIGN_TO_MZN
         );
 
-        String description = DescriptionFormatter.formatConversion(conversion);
+        ExchangeRateInfo exchangeInfo = ExchangeRateInfo.from(exchangeRateResponse);
+
+        String description = descriptionFormatter.formatDetailedDescription(conversion, exchangeInfo);
 
         return new CurrencyConversionResponse(
                 ExchangeRateInfo.from(exchangeRateResponse),
@@ -84,7 +89,7 @@ public class ExchangeRateService {
     }
     @Cacheable(value = "buyForeignCurrency", keyGenerator = "customKeyGeneration")
     public CurrencyConversionResponse buyForeignCurrency(BigDecimal foreignAmount, String currency)
-            throws NotFoundException, SSLException {
+            throws NotFoundException, SSLException, IllegalArgumentException {
 
         validateConversionParams(foreignAmount, currency);
 
@@ -103,7 +108,9 @@ public class ExchangeRateService {
                 ConversionType.BUY_FOREIGN_WITH_MZN
         );
 
-        String description = DescriptionFormatter.formatConversion(conversion);
+        ExchangeRateInfo exchangeInfo = ExchangeRateInfo.from(exchangeRateResponse);
+
+        String description = descriptionFormatter.formatDetailedDescription(conversion, exchangeInfo);
 
         return new CurrencyConversionResponse(
                 ExchangeRateInfo.from(exchangeRateResponse),
@@ -114,7 +121,7 @@ public class ExchangeRateService {
 
     @Cacheable(value = "sellMetical", keyGenerator = "customKeyGeneration")
     public CurrencyConversionResponse sellMetical(BigDecimal meticalAmount, String targetCurrency)
-            throws NotFoundException, SSLException {
+            throws NotFoundException, SSLException, IllegalArgumentException {
 
         validateConversionParams(meticalAmount, targetCurrency);
 
@@ -132,8 +139,9 @@ public class ExchangeRateService {
                 buyRate,
                 ConversionType.SELL_MZN_FOR_FOREIGN
         );
+        ExchangeRateInfo exchangeInfo = ExchangeRateInfo.from(exchangeRateResponse);
 
-        String description = DescriptionFormatter.formatConversion(conversion);
+        String description = descriptionFormatter.formatDetailedDescription(conversion, exchangeInfo);
 
         return new CurrencyConversionResponse(
                 ExchangeRateInfo.from(exchangeRateResponse),
@@ -141,23 +149,6 @@ public class ExchangeRateService {
                 description
         );
     }
-
-
-    public String getBuyDescription(BigDecimal foreignCurrencyAmount, String foreignCurrency, BigDecimal meticalNeeded) {
-        return String.format("Para comprar %s %s, você precisa de %s MZN",
-                foreignCurrencyAmount, foreignCurrency, meticalNeeded);
-    }
-
-    public String getSellDescription(BigDecimal meticalAvailable, BigDecimal foreignCurrencyObtained, String targetCurrency) {
-        return String.format("Com %s MZN, você consegue obter %s %s",
-                meticalAvailable, foreignCurrencyObtained, targetCurrency);
-    }
-
-    public String sellForeignCurrencyDescription(BigDecimal meticalObtained, BigDecimal foreignAmout, String currency){
-        return String.format("Com %s %s, Você consegue obter %s MZN",
-                foreignAmout, currency, meticalObtained);
-    }
-
 
     private RateResponse findCurrencyRate(ExchangeRateResponse exchangeRateResponse, String currency)
             throws NotFoundException {
@@ -170,7 +161,7 @@ public class ExchangeRateService {
                 ));
     }
 
-    private void validateConversionParams(BigDecimal amount, String currency) {
+    private void validateConversionParams(BigDecimal amount, String currency) throws IllegalArgumentException {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException(
                     messageService.getLocalizedMessage("validation.amount.positive",
@@ -179,7 +170,7 @@ public class ExchangeRateService {
         }
         validateCurrency(currency);
     }
-    private void validateCurrency(String currency) {
+    private void validateCurrency(String currency) throws IllegalArgumentException {
         if (currency == null || currency.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     messageService.getLocalizedMessage("validation.currency.required",

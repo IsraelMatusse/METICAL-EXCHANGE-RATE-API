@@ -1,6 +1,7 @@
 package com.metical_converter.interfaces.controllers;
 
 import com.metical_converter.infrasctruture.config.RateLimited;
+import com.metical_converter.infrasctruture.exceptions.IllegalArgumentException;
 import com.metical_converter.infrasctruture.exceptions.NotFoundException;
 import com.metical_converter.infrasctruture.middleware.LocaleMiddleware;
 import com.metical_converter.interfaces.internal.ApiResponse;
@@ -59,8 +60,8 @@ public class ExchangeRatesController {
     public ResponseEntity<ApiResponse<CurrencyConversionResponse>> sellForeignCurrency(
             @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount,
             @RequestParam @Valid @NotBlank String currency
-    ) throws SSLException, NotFoundException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.sellForeignCurrency(amount, currency)));
+    ) throws SSLException, NotFoundException, IllegalArgumentException {
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("conversion.sucess", localeMiddleware.getActualLocale()), exchangeRateService.sellForeignCurrency(amount, currency)));
     }
 
 
@@ -70,8 +71,8 @@ public class ExchangeRatesController {
     public ResponseEntity<ApiResponse<CurrencyConversionResponse>> buyCurrency(
             @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount,
             @RequestParam @Valid @NotBlank String currency
-    ) throws SSLException, NotFoundException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.buyForeignCurrency(amount, currency)));
+    ) throws SSLException, NotFoundException, IllegalArgumentException {
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("conversion.sucess", localeMiddleware.getActualLocale()), exchangeRateService.buyForeignCurrency(amount, currency)));
     }
 
 
@@ -81,8 +82,8 @@ public class ExchangeRatesController {
     public ResponseEntity<ApiResponse<CurrencyConversionResponse>> sellCurrency(
             @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount,
             @RequestParam @Valid @NotBlank String currency
-    ) throws SSLException, NotFoundException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.sellMetical(amount, currency)));
+    ) throws SSLException, NotFoundException, IllegalArgumentException {
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("conversion.sucess", localeMiddleware.getActualLocale()), exchangeRateService.sellMetical(amount, currency)));
     }
 
 }
