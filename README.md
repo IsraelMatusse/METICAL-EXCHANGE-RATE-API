@@ -55,7 +55,7 @@ The application uses Spring Boot's auto-configuration. Key configurations includ
 
 ## 📚 API Endpoints
 
-The api is documented using Swagger, so you can check all endpoints and it's details by accessing: http://localhost:8084/swagger-ui/index.html#/
+The api is documented using Swagger, so you can check all endpoints and it's details by accessing:https://metical-converter.israelmatusse.com/docs
 
 
 ## 🔄 Data Flow
