@@ -20,7 +20,7 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("API da Aplicação de Conversão de Moedas")
+                        .title("API de Conversão de Metical")
                         .version("1.0.0")
                         .description("Documentação da API para a aplicação de conversão de moedas.")
                         .contact(new Contact()
