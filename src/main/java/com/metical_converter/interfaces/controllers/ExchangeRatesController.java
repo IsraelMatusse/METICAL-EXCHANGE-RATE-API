@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 @Tag(name = "Taxas de Câmbio")
 public class ExchangeRatesController {
 
@@ -53,34 +53,36 @@ public class ExchangeRatesController {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchange.rate.by.currency", localeMiddleware.getActualLocale()), exchangeRateService.getExchangeRatesByCurrency(currency)));
     }
 
-    @GetMapping("/buy-currency")
+    @GetMapping("/sell-foreign-currency")
+    @RateLimited
+    @Operation(summary = "Calcula quanto em Metical (MZN) é possível obter ao vender uma quantidade específica de moeda estrangeira")
+    public ResponseEntity<ApiResponse<CurrencyConversionResponse>> sellForeignCurrency(
+            @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount,
+            @RequestParam @Valid @NotBlank String currency
+    ) throws SSLException, NotFoundException {
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.sellForeignCurrency(amount, currency)));
+    }
+
+
+    @GetMapping("/buy-foreign-currency")
     @RateLimited
     @Operation(summary = "Calcula quanto em Metical (MZN) é necessário para comprar uma quantidade específica de moeda estrangeira")
-    public ResponseEntity<ApiResponse<BuyCurrencyResponse>> buyCurrency(
+    public ResponseEntity<ApiResponse<CurrencyConversionResponse>> buyCurrency(
             @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount,
             @RequestParam @Valid @NotBlank String currency
     ) throws SSLException, NotFoundException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.buyCurrency(amount, currency)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.buyForeignCurrency(amount, currency)));
     }
 
 
-    @GetMapping("/sell-currency")
+    @GetMapping("/sell-metical")
     @Operation(summary = "Calcula quanto de moeda estrangeira se consegue obter com o valor em Metical (MZN) disponível")
     @RateLimited
-    public ResponseEntity<ApiResponse<SellCurrencyResponse>> sellCurrency(
+    public ResponseEntity<ApiResponse<CurrencyConversionResponse>> sellCurrency(
             @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount,
             @RequestParam @Valid @NotBlank String currency
     ) throws SSLException, NotFoundException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.sellCurrency(amount, currency)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.sellMetical(amount, currency)));
     }
 
-    @GetMapping("/sell-currency/compare")
-    @RateLimited
-    @Operation(summary = "Compara a taxa de compra e venda de uma moeda específica")
-    public ResponseEntity<ApiResponse<MultiCurrencyComparisonResponse>> compareCurrency(
-            @RequestParam List<String> currencys,  @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount
-    ) throws SSLException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchage.rate.by.currency.and.amount", localeMiddleware.getActualLocale()), exchangeRateService.compareMultipleCurrencies(amount, currencys)));
-
-    }
 }

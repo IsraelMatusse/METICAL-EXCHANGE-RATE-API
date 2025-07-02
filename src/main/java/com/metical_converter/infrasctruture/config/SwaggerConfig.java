@@ -27,7 +27,7 @@ public class SwaggerConfig {
                                 .name("Suporte")
                                 .email("devmathusses@gmail.com")))
                 .servers(List.of(
-                        new Server().url(baseUrl).description("Ambiente de Desenvolvimento")
+                        new Server().url(baseUrl).description("Ambiente de Testes")
                 ));
     }
     @Bean
