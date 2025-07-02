@@ -1,0 +1,31 @@
+name: DEVELOP - CI/CD Pipeline to Build and Deploy METICAL EXHANGE RATE API
+
+on:
+  push:
+    branches: [demo]
+
+env:
+  APPLICATION_NAME: 'metical exchange rate api'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy application on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd /root/projects/METICAL-EXCHANGE-RATE-API
+            
+            sudo docker compose down
+            
+            git pull 
+            
+            sudo docker compose build 
+            
+            sudo docker compose up -d
+            
+            sudo docker image prune -f

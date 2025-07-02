@@ -12,7 +12,7 @@ public class DateUtils {
             LocalDate date = LocalDate.parse(rawDate, inputFormatter);
             return date.format(DateTimeFormatter.ofPattern(outputPattern));
         } catch (Exception e) {
-            return rawDate; // Retorna original se não conseguir formatar
+            return rawDate;
         }
     }
 
@@ -21,7 +21,7 @@ public class DateUtils {
             LocalDateTime dateTime = LocalDateTime.parse(rawDateTime, inputFormatter);
             return dateTime.format(DateTimeFormatter.ofPattern(outputPattern));
         } catch (Exception e) {
-            return rawDateTime; // Retorna original se não conseguir formatar
+            return rawDateTime;
         }
     }
 
