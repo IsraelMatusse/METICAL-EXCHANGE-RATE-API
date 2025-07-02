@@ -14,7 +14,7 @@ public class LocaleMiddleware {
 
     private final Logger logger= LoggerFactory.getLogger(LocaleMiddleware.class);
     private static final String ACCEPT_LANGUAGE_HEADER = "Accept-Language";
-    private static final Locale DEFAULT_LOCALE = new Locale("pt"); // Portuguese as pattern
+    private static final Locale DEFAULT_LOCALE = new Locale("pt"); // Portuguese as default language
 
 
     public  Locale getActualLocale() {

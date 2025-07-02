@@ -21,7 +21,7 @@ public class DescriptionFormatter {
         this.localeMiddleware = localeMiddleware;
     }
 
-    public  String formatConversion(ConversionDetails conversion) {
+    public String formatConversion(ConversionDetails conversion) {
         Locale currentLocale = localeMiddleware.getActualLocale();
 
         return switch (conversion.operationType()) {
@@ -47,16 +47,6 @@ public class DescriptionFormatter {
                     formatAmount(conversion.inputAmount()),
                     formatAmount(conversion.outputAmount()),
                     conversion.outputCurrency()
-            );
-
-            case CURRENCY_TO_CURRENCY -> messageService.getLocalizedMessage(
-                    "conversion.currency.to.currency",
-                    currentLocale,
-                    formatAmount(conversion.inputAmount()),
-                    conversion.inputCurrency(),
-                    formatAmount(conversion.outputAmount()),
-                    conversion.outputCurrency(),
-                    formatExchangeRate(conversion.exchangeRate())
             );
         };
     }

@@ -10,6 +10,7 @@ import com.metical_converter.integration.BmWebClient;
 import com.metical_converter.interfaces.enums.ConversionType;
 import com.metical_converter.interfaces.responses.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ import java.util.List;
 @Service
 public class ExchangeRateService {
 
+    @Value("${application.base.currency}")
+    public String appBaseCurrency;
     private final BmWebClient bmWebClient;
     private final MessageService messageService;
     private final LocaleMiddleware localeMiddleware;
@@ -72,7 +75,7 @@ public class ExchangeRateService {
                 foreignAmount,
                 currency.toUpperCase(),
                 meticalObtained,
-                "MZN",
+                appBaseCurrency,
                 exchangeRate,
                 ConversionType.SELL_FOREIGN_TO_MZN
         );
@@ -101,7 +104,7 @@ public class ExchangeRateService {
 
         ConversionDetails conversion = new ConversionDetails(
                 meticalNeeded,
-                "MZN",
+                appBaseCurrency,
                 foreignAmount,
                 currency.toUpperCase(),
                 sellRate,
@@ -128,15 +131,15 @@ public class ExchangeRateService {
         ExchangeRateResponse exchangeRateResponse = self.getExchangeRates();
         RateResponse rateResponse = findCurrencyRate(exchangeRateResponse, targetCurrency);
 
-        BigDecimal buyRate = BigDecimal.valueOf(rateResponse.buy());
-        BigDecimal foreignCurrencyObtained = CurrencyCalculator.divide(meticalAmount, buyRate);
+        BigDecimal sellRate = BigDecimal.valueOf(rateResponse.sell());
+        BigDecimal foreignCurrencyObtained = CurrencyCalculator.divide(meticalAmount, sellRate);
 
         ConversionDetails conversion = new ConversionDetails(
                 meticalAmount,
-                "MZN",
+                appBaseCurrency,
                 foreignCurrencyObtained,
                 targetCurrency.toUpperCase(),
-                buyRate,
+                sellRate,
                 ConversionType.SELL_MZN_FOR_FOREIGN
         );
         ExchangeRateInfo exchangeInfo = ExchangeRateInfo.from(exchangeRateResponse);
