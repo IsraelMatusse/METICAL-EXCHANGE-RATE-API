@@ -32,15 +32,6 @@ public class DescriptionFormatter {
                     conversion.inputCurrency(),
                     formatAmount(conversion.outputAmount())
             );
-
-            case BUY_FOREIGN_WITH_MZN -> messageService.getLocalizedMessage(
-                    "conversion.buy.foreign.with.mzn",
-                    currentLocale,
-                    formatAmount(conversion.outputAmount()),
-                    conversion.outputCurrency(),
-                    formatAmount(conversion.inputAmount())
-            );
-
             case SELL_MZN_FOR_FOREIGN -> messageService.getLocalizedMessage(
                     "conversion.sell.mzn.for.foreign",
                     currentLocale,
@@ -48,6 +39,14 @@ public class DescriptionFormatter {
                     formatAmount(conversion.outputAmount()),
                     conversion.outputCurrency()
             );
+            case CROSS_CURRENCY -> messageService.getLocalizedMessage(
+                    "conversion.cross.currency",
+                    currentLocale,
+                    formatAmount(conversion.inputAmount()),
+                    conversion.inputCurrency(),
+                    conversion.outputCurrency(),
+                    formatAmount(conversion.outputAmount()),
+                    conversion.exchangeRate());
         };
     }
 
