@@ -41,49 +41,69 @@ public class ExchangeRatesController {
     }
 
     @RateLimited
-    @GetMapping("/currencys")
+    @GetMapping("/currencies")
     @Operation(summary = "Listar moedas Disponíveis")
     public ResponseEntity<ApiResponse<List<CurrencyResponse>>> getCurrencys() throws SSLException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("currencys.found", localeMiddleware.getActualLocale()), exchangeRateService.getCurrencys()));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("currencys.found", localeMiddleware.getActualLocale()), exchangeRateService.getCurrencies()));
     }
 
-    @GetMapping("/currency/{currency}")
+    @GetMapping("/exchange-rates/{currency}")
     @RateLimited
     @Operation(summary = "Buscar Taxa de Câmbio por moeda")
     public ResponseEntity<ApiResponse<RateResponse>> getExchangeRatesByCurrency(@PathVariable(value = "currency") String currency) throws SSLException, NotFoundException {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("exchange.rate.by.currency", localeMiddleware.getActualLocale()), exchangeRateService.getExchangeRatesByCurrency(currency)));
     }
 
+
+    @GetMapping("/exchange/quote")
+    @RateLimited
+    @Operation(summary = "Calcula conversão entre moedas usando parâmetros from/to")
+    public ResponseEntity<ApiResponse<CurrencyConversionResponse>> getQuote(
+            @RequestParam @Valid @NotBlank String from,
+            @RequestParam @Valid @NotBlank String to,
+            @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount
+    ) throws SSLException, NotFoundException, IllegalArgumentException {
+
+        CurrencyConversionResponse response = exchangeRateService.convertCurrency(from, to, amount);
+        return ResponseEntity.ok(new ApiResponse<>(
+                messageService.getLocalizedMessage("conversion.success", localeMiddleware.getActualLocale()),
+                response
+        ));
+    }
+
     @GetMapping("/sell-foreign-currency")
     @RateLimited
-    @Operation(summary = "Calcula quanto em Metical (MZN) é possível obter ao vender uma quantidade específica de moeda estrangeira")
+    @Deprecated
+    @Operation(summary = "DEPRECATED: Use /quote com from=CURRENCY&to=MZN", deprecated = true)
     public ResponseEntity<ApiResponse<CurrencyConversionResponse>> sellForeignCurrency(
             @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount,
             @RequestParam @Valid @NotBlank String currency
     ) throws SSLException, NotFoundException, IllegalArgumentException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("conversion.sucess", localeMiddleware.getActualLocale()), exchangeRateService.sellForeignCurrency(amount, currency)));
+        return getQuote(currency, "MZN", amount);
     }
 
 
     @GetMapping("/buy-foreign-currency")
     @RateLimited
-    @Operation(summary = "Calcula quanto em Metical (MZN) é necessário para comprar uma quantidade específica de moeda estrangeira")
+    @Deprecated
+    @Operation(summary = "DEPRECATED: Use /quote com from=MZN&to=CURRENCY", deprecated = true)
     public ResponseEntity<ApiResponse<CurrencyConversionResponse>> buyCurrency(
             @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount,
             @RequestParam @Valid @NotBlank String currency
     ) throws SSLException, NotFoundException, IllegalArgumentException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("conversion.sucess", localeMiddleware.getActualLocale()), exchangeRateService.buyForeignCurrency(amount, currency)));
+        return getQuote("MZN", currency, amount);
     }
 
 
     @GetMapping("/sell-metical")
-    @Operation(summary = "Calcula quanto de moeda estrangeira se consegue obter com o valor em Metical (MZN) disponível")
     @RateLimited
+    @Deprecated
+    @Operation(summary = "DEPRECATED: Use /quote com from=MZN&to=CURRENCY", deprecated = true)
     public ResponseEntity<ApiResponse<CurrencyConversionResponse>> sellCurrency(
             @RequestParam @Valid @DecimalMin(value = "0.01") BigDecimal amount,
             @RequestParam @Valid @NotBlank String currency
     ) throws SSLException, NotFoundException, IllegalArgumentException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(messageService.getLocalizedMessage("conversion.sucess", localeMiddleware.getActualLocale()), exchangeRateService.sellMetical(amount, currency)));
+        return getQuote("MZN", currency, amount);
     }
 
 }
